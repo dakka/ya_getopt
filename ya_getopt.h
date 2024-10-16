@@ -62,7 +62,7 @@ int ya_getopt_long_bound_only(int argc, char * const argv[], const char *optstri
 #define getopt ya_getopt
 #define getopt_long ya_getopt_long
 #define getopt_long_only ya_getopt_long_only
-#define getopt_long_bound ya_getopt_bound_long
+#define getopt_long_bound ya_getopt_long_bound
 #define getopt_long_bound_only ya_getopt_long_bound_only
 #define optarg ya_optarg
 #define optind ya_optind
