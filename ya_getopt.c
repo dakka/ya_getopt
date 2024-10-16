@@ -46,9 +46,11 @@ static int handle_nonopt_argv = 0;
 
 static void ya_getopt_error(const char *optstring, const char *format, ...);
 static void check_gnu_extension(const char *optstring);
-static int ya_getopt_internal(int argc, char * const argv[], const char *optstring, const struct option *longopts, int *longindex, int long_only);
+static int ya_getopt_internal(int argc, char * const argv[], const char *optstring,
+	const struct option *longopts, int sz, int *longindex, int long_only);
 static int ya_getopt_shortopts(int argc, char * const argv[], const char *optstring, int long_only);
-static int ya_getopt_longopts(int argc, char * const argv[], char *arg, const char *optstring, const struct option *longopts, int *longindex, int *long_only_flag);
+static int ya_getopt_longopts(int argc, char * const argv[], char *arg, const char *optstring,
+	const struct option *longopts, int sz, int *longindex, int *long_only_flag);
 
 static void ya_getopt_error(const char *optstring, const char *format, ...)
 {
@@ -81,20 +83,30 @@ static int is_option(const char *arg)
 
 int ya_getopt(int argc, char * const argv[], const char *optstring)
 {
-    return ya_getopt_internal(argc, argv, optstring, NULL, NULL, 0);
+    return ya_getopt_internal(argc, argv, optstring, NULL, 0, NULL, 0);
+}
+
+int ya_getopt_long_bound(int argc, char * const argv[], const char *optstring, const struct option *longopts, int sz, int *longindex)
+{
+    return ya_getopt_internal(argc, argv, optstring, longopts, sz, longindex, 0);
 }
 
 int ya_getopt_long(int argc, char * const argv[], const char *optstring, const struct option *longopts, int *longindex)
 {
-    return ya_getopt_internal(argc, argv, optstring, longopts, longindex, 0);
+    return ya_getopt_internal(argc, argv, optstring, longopts, 0, longindex, 0);
+}
+
+int ya_getopt_long_bound_only(int argc, char * const argv[], const char *optstring, const struct option *longopts, int sz, int *longindex)
+{
+    return ya_getopt_internal(argc, argv, optstring, longopts, sz, longindex, 1);
 }
 
 int ya_getopt_long_only(int argc, char * const argv[], const char *optstring, const struct option *longopts, int *longindex)
 {
-    return ya_getopt_internal(argc, argv, optstring, longopts, longindex, 1);
+    return ya_getopt_internal(argc, argv, optstring, longopts, 0, longindex, 1);
 }
 
-static int ya_getopt_internal(int argc, char * const argv[], const char *optstring, const struct option *longopts, int *longindex, int long_only)
+static int ya_getopt_internal(int argc, char * const argv[], const char *optstring, const struct option *longopts, int sz, int *longindex, int long_only)
 {
     static int start, end;
 
@@ -175,7 +187,7 @@ static int ya_getopt_internal(int argc, char * const argv[], const char *optstri
             return -1;
         }
         if (longopts != NULL && arg[1] == '-') {
-            return ya_getopt_longopts(argc, argv, argv[ya_optind] + 2, optstring, longopts, longindex, NULL);
+            return ya_getopt_longopts(argc, argv, argv[ya_optind] + 2, optstring, longopts, sz, longindex, NULL);
         }
     }
 
@@ -184,7 +196,7 @@ static int ya_getopt_internal(int argc, char * const argv[], const char *optstri
     }
     if (long_only) {
         int long_only_flag = 0;
-        int rv = ya_getopt_longopts(argc, argv, ya_optnext, optstring, longopts, longindex, &long_only_flag);
+        int rv = ya_getopt_longopts(argc, argv, ya_optnext, optstring, longopts, sz, longindex, &long_only_flag);
         if (!long_only_flag) {
             ya_optnext = NULL;
             return rv;
@@ -253,14 +265,14 @@ static int ya_getopt_shortopts(int argc, char * const argv[], const char *optstr
     return opt;
 }
 
-static int ya_getopt_longopts(int argc, char * const argv[], char *arg, const char *optstring, const struct option *longopts, int *longindex, int *long_only_flag)
+static int ya_getopt_longopts(int argc, char * const argv[], char *arg, const char *optstring, const struct option *longopts, int sz, int *longindex, int *long_only_flag)
 {
     char *val = NULL;
     const struct option *opt;
     size_t namelen;
     int idx;
 
-    for (idx = 0; longopts[idx].name != NULL; idx++) {
+    for (idx = 0; sz ? idx < sz : longopts[idx].name != NULL; idx++) {
         opt = &longopts[idx];
         namelen = strlen(opt->name);
         if (strncmp(arg, opt->name, namelen) == 0) {
