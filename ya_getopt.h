@@ -38,9 +38,7 @@ extern "C" {
 #endif
 
 extern char *ya_optarg;
-extern int ya_optind;
-extern int ya_opterr;
-extern int ya_optopt;
+extern int ya_optind, ya_opterr, ya_optopt;
 
 #define ya_no_argument        0
 #define ya_required_argument  1
