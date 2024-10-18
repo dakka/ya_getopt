@@ -42,7 +42,13 @@
 #endif
 
 #ifdef USE_YA_GETOPT
-#include "ya_getopt.h"
+#ifdef USE_CMAKE
+# include <ya_getopt.h>
+#else
+# include "ya_getopt.h"
+#endif
+#else
+# include <getopt.h>
 #endif
 
 static void print_opts(int opt, int argc, char **argv)

@@ -4,6 +4,7 @@
  * https://github.com/kubo/ya_getopt
  *
  * Copyright 2015 Kubo Takehiro <kubo@jiubao.org>
+ * Copyright (C) 2024 David L. Dight [https://github.com/dakka]
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
@@ -56,6 +57,7 @@ int ya_getopt_long(int argc, char * const argv[], const char *optstring,
                    const struct option *longopts, int *longindex);
 int ya_getopt_long_only(int argc, char * const argv[], const char *optstring,
                         const struct option *longopts, int *longindex);
+/* extensions: bounded struct option* */
 int ya_getopt_long_bound(int argc, char * const argv[], const char *optstring,
 								const struct option *longopts, int sz, int *longindex);
 int ya_getopt_long_bound_only(int argc, char * const argv[], const char *optstring,

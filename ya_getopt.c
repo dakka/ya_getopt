@@ -4,6 +4,7 @@
  * https://github.com/kubo/ya_getopt
  *
  * Copyright 2015 Kubo Takehiro <kubo@jiubao.org>
+ * Copyright (C) 2024 David L. Dight [https://github.com/dakka]
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:

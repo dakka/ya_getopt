@@ -3,6 +3,7 @@
 # https://github.com/kubo/ya_getopt
 #
 # Copyright 2015 Kubo Takehiro <kubo@jiubao.org>
+# Copyright (C) 2024 David L. Dight [https://github.com/dakka]
 #
 # Redistribution and use in source and binary forms, with or without modification, are
 # permitted provided that the following conditions are met:
@@ -31,23 +32,34 @@
 # min cmake version 3.20 (Mar 24, 2021)
 #----------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.20)
-project (ya_getopt
+set(name ya_getopt)
+project (${name}
 	LANGUAGES C
-	HOMEPAGE_URL https://github.com/dakka/ya_getopt
+	HOMEPAGE_URL https://github.com/dakka/${name}
 	DESCRIPTION "Yet another getopt"
 	VERSION 1.2.0
 )
-
-set(name ya_getopt)
+set(srcdir ${${name}_SOURCE_DIR})
+set(lib ${name}static)
 add_library(objlib OBJECT ${name}.c)
-set_property(TARGET objlib PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_target_properties(objlib PROPERTIES POSITION_INDEPENDENT_CODE 1)
+add_library(${lib} STATIC $<TARGET_OBJECTS:objlib>)
+set_target_properties(${lib} PROPERTIES OUTPUT_NAME ${name})
 add_library(${name} SHARED $<TARGET_OBJECTS:objlib>)
-add_library(${name}static STATIC $<TARGET_OBJECTS:objlib>)
-set_target_properties(${name}static PROPERTIES OUTPUT_NAME ${name})
 
-#add_executable(b2 b2.cpp ${deps}/ya_getopt-src/ya_getopt.c)
-#set_target_properties(b2 PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED true)
-#string(TIMESTAMP B2_COPYRIGHT_YEAR "%y")
-#configure_file(b2.h.in b2.h @ONLY)
-#target_include_directories(b2 PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${deps}/sndfile-build ${deps}/ya_getopt-src)
-#target_link_libraries(b2 PRIVATE sndfile)
+if(LINUX) # true for macOS
+	foreach(x getopt_test getopt_long_test getopt_long_only_test)
+		foreach(xt ${x} ya_${x})
+			add_executable(${xt} ${srcdir}/test/${x}.c)
+			target_link_libraries(${xt} PRIVATE ${lib})
+			if (${xt} MATCHES "ya_*")
+				target_compile_definitions(${xt} PUBLIC USE_YA_GETOPT USE_CMAKE)
+				target_include_directories(${xt} PRIVATE ${srcdir})
+			endif()
+		endforeach()
+	endforeach()
+	add_test(NAME default COMMAND ${srcdir}/test/tests_on_linux.sh)
+	enable_testing()
+	file(GLOB OUTPUTFILES "${CMAKE_CURRENT_BINARY_DIR}/*.out")
+	set_property(TARGET getopt_test PROPERTY ADDITIONAL_CLEAN_FILES ${OUTPUTFILES})
+endif()
